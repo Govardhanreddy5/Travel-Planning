@@ -3,7 +3,7 @@
 import { FormEvent, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { api } from "../lib/api";
+import { api, saveSession } from "../lib/api";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -34,13 +34,20 @@ export default function RegisterPage() {
     setLoading(true);
 
     try {
-      await api("/api/auth/register", {
+      const data = await api<{ token?: string; email: string; name?: string }>("/api/auth/register", {
         method: "POST",
         body: JSON.stringify({ name, email, password }),
       });
 
-      setSuccess("Your account is ready. Redirecting you to sign in…");
-      window.setTimeout(() => router.push("/login"), 900);
+      if (data.token) {
+        saveSession(data.email || email, data.token);
+        localStorage.setItem("user", JSON.stringify(data));
+        setSuccess("Account created successfully! Taking you to your dashboard…");
+        window.setTimeout(() => router.push("/dashboard"), 700);
+      } else {
+        setSuccess("Your account is ready. Redirecting you to sign in…");
+        window.setTimeout(() => router.push("/login"), 900);
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong.");
     } finally {

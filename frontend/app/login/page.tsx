@@ -1,17 +1,19 @@
 "use client";
 
 import Link from "next/link";
-import { FormEvent, useState } from "react";
-import { useRouter } from "next/navigation";
+import { FormEvent, Suspense, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { api, saveSession } from "../lib/api";
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const info = searchParams.get("expired") === "true" ? "Your session has expired. Please sign in again to continue." : "";
 
   async function handleLogin(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -40,6 +42,7 @@ export default function LoginPage() {
         <section className="flex min-h-[620px] items-center bg-white px-6 py-10 sm:px-12 lg:px-14"><div className="mx-auto w-full max-w-md">
           <Link href="/" className="mb-10 inline-flex items-center gap-2 text-sm font-semibold text-slate-500 transition hover:text-[#2452bb]"><span aria-hidden="true">&larr;</span> Back to home</Link>
           <div className="mb-8"><p className="text-sm font-semibold uppercase tracking-[0.16em] text-[#4266be]">Welcome back</p><h2 className="mt-3 text-3xl font-bold tracking-[-0.045em] text-[#172033] sm:text-4xl">Sign in to TripNest</h2><p className="mt-3 text-sm leading-6 text-slate-500">Continue planning the trips that matter to you.</p></div>
+          {info && <div role="status" className="mb-6 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">{info}</div>}
           {error && <div role="alert" className="mb-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>}
           <form onSubmit={handleLogin} className="space-y-5">
             <label className="block text-sm font-semibold text-slate-700" htmlFor="email">Email address<input id="email" type="email" autoComplete="email" placeholder="you@example.com" value={email} onChange={(event) => setEmail(event.target.value)} required className="mt-2 h-12 w-full rounded-xl border border-slate-300 bg-white px-3.5 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-[#4266be] focus:ring-4 focus:ring-[#e8eeff]" /></label>
@@ -50,5 +53,13 @@ export default function LoginPage() {
         </div></section>
       </div>
     </main>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={null}>
+      <LoginForm />
+    </Suspense>
   );
 }

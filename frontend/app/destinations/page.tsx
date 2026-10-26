@@ -74,8 +74,6 @@ export default function DestinationsPage() {
   useEffect(() => {
     const timer = window.setTimeout(() => void loadDestinations(), 0);
     return () => window.clearTimeout(timer);
-    // The initial search should only run once; subsequent searches are user initiated.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

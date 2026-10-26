@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { FormEvent, useEffect, useState } from "react";
 import { UserShell } from "../components/user-shell";
@@ -17,6 +17,7 @@ export default function ProfilePage() {
 
   const [favorites, setFavorites] = useState<Destination[]>([]);
   const [preferenceStatus, setPreferenceStatus] = useState("");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     api<UserProfile>("/users/me")
@@ -31,7 +32,8 @@ export default function ProfilePage() {
             ? reason.message
             : "Profile could not be loaded."
         )
-      );
+      )
+      .finally(() => setLoading(false));
 
     api<Record<string, string>>("/users/me/preferences")
       .then((data) => setPreferences(data || {}))
@@ -301,9 +303,13 @@ export default function ProfilePage() {
             )}
           </section>
         </form>
-      ) : (
+      ) : loading ? (
         <p className="text-sm text-[#64799a]">
           Loading profile...
+        </p>
+      ) : (
+        <p className="text-sm text-[#64799a]">
+          Unable to load profile data.
         </p>
       )}
     </UserShell>

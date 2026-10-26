@@ -32,6 +32,9 @@ public class UserController {
     @GetMapping("/favorites")
     public List<Destination> getFavorites() { return userService.getFavoriteDestinations(); }
 
+    @PostMapping("/favorites/{destinationId}")
+    public void addFavorite(@PathVariable Integer destinationId) { userService.addFavoriteDestination(destinationId); }
+
     @DeleteMapping("/favorites/{destinationId}")
     public void removeFavorite(@PathVariable Integer destinationId) { userService.removeFavoriteDestination(destinationId); }
 }

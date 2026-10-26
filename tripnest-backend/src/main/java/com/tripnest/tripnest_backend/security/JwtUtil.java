@@ -13,11 +13,11 @@ import java.util.function.Function;
 @Component
 public class JwtUtil {
  
-    @Value("${jwt.secret}")
+    @Value("${jwt.secret:default-secret-key-that-is-at-least-256-bits-long-32-bytes!}")
     private String secret;
  
-    @Value("${jwt.expiration}")
-    private long expiration;
+    @Value("${jwt.expiration:86400000}")
+    private long expiration = 86400000L;
  
     private SecretKey getSigningKey() {
         return Keys.hmacShaKeyFor(secret.getBytes());

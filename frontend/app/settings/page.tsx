@@ -10,6 +10,7 @@ export default function SettingsPage() {
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     api<UserProfile>("/users/me")
@@ -18,12 +19,14 @@ export default function SettingsPage() {
         setName(data.name || "");
         setEmail(data.email || "");
       })
-      .catch((reason) => setError(reason instanceof Error ? reason.message : "Account settings could not be loaded."));
+      .catch((reason) => setError(reason instanceof Error ? reason.message : "Account settings could not be loaded."))
+      .finally(() => setLoading(false));
   }, []);
 
   async function save(event: FormEvent) {
     event.preventDefault();
     setStatus("");
+    setError("");
 
     try {
       await api<UserProfile>("/users/me", {
@@ -42,7 +45,9 @@ export default function SettingsPage() {
         {error && <p className="rounded-2xl border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</p>}
         {status && <p className="rounded-2xl border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-700">{status}</p>}
 
-        {profile ? (
+        {loading ? (
+          <p className="text-sm text-[#64799a]">Loading account settings...</p>
+        ) : profile ? (
           <>
             <form onSubmit={save} className="rounded-[28px] border border-[#dfe9ff] bg-[#f7f9ff] p-5 shadow-sm">
               <h3 className="text-lg font-semibold text-[#1d2f45]">Account information</h3>
@@ -84,7 +89,7 @@ export default function SettingsPage() {
             </div>
           </>
         ) : (
-          <p className="text-sm text-[#64799a]">Loading account settings...</p>
+          <p className="text-sm text-[#64799a]">Unable to load profile data.</p>
         )}
       </div>
     </UserShell>

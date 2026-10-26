@@ -49,13 +49,15 @@ public class UserService {
         user.setOauthGoogle(false);
  
         User savedUser = userRepository.save(user);
- 
+
+        String token = jwtUtil.generateToken(savedUser.getEmail());
+
         return new AuthResponse(
                 savedUser.getId(),
                 savedUser.getName(),
                 savedUser.getEmail(),
                 "User registered successfully",
-                null
+                token
         );
     }
  
@@ -108,6 +110,14 @@ public class UserService {
 
     public List<Destination> getFavoriteDestinations() {
         return List.copyOf(getCurrentUser().getFavoriteDestinations());
+    }
+
+    public void addFavoriteDestination(Integer destinationId) {
+        User user = getCurrentUser();
+        Destination destination = destinationRepository.findById(destinationId)
+                .orElseThrow(() -> new IllegalArgumentException("Destination not found"));
+        user.getFavoriteDestinations().add(destination);
+        userRepository.save(user);
     }
 
     public void removeFavoriteDestination(Integer destinationId) {

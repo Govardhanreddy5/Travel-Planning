@@ -44,9 +44,22 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of(corsOrigin, "http://localhost:3000", "http://127.0.0.1:3000"));
+        java.util.List<String> origins = new java.util.ArrayList<>();
+        if (corsOrigin != null && !corsOrigin.isBlank()) {
+            for (String origin : corsOrigin.split(",")) {
+                String trimmed = origin.trim();
+                if (!trimmed.isEmpty()) {
+                    origins.add(trimmed);
+                }
+            }
+        }
+        if (!origins.contains("http://localhost:3000")) origins.add("http://localhost:3000");
+        if (!origins.contains("http://127.0.0.1:3000")) origins.add("http://127.0.0.1:3000");
+        
+        config.setAllowedOriginPatterns(List.of("*"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
+        config.setExposedHeaders(List.of("Authorization"));
         config.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
@@ -65,7 +78,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/weather/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/destinations/search").permitAll()
+                .requestMatchers(HttpMethod.GET, "/destinations/**").permitAll()
                 .anyRequest().authenticated()
             )
             .exceptionHandling(ex -> ex

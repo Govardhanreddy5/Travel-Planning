@@ -153,7 +153,7 @@ const API_URL =
 
 const REQUEST_TIMEOUT_MS = 15_000;
 
-function session() {
+export function getSession(): { token: string; email: string } {
   if (typeof window === "undefined") {
     return { token: "", email: "" };
   }
@@ -164,21 +164,19 @@ function session() {
   };
 }
 
+export function isAuthenticated(): boolean {
+  return Boolean(getSession().token);
+}
+
 export async function api<T>(
   path: string,
   options: RequestInit = {}
 ): Promise<T> {
-  const { token, email } = session();
+  const { token } = getSession();
 
   const url = path.startsWith("http")
     ? path
     : `${API_URL}${path}`;
-
-  const hasQuery = url.includes("?");
-
-  const withEmail =
-    Boolean(email) &&
-    (path.startsWith("/trips") || path.startsWith("/users"));
 
   const controller = new AbortController();
 
@@ -190,24 +188,17 @@ export async function api<T>(
   let response: Response;
 
   try {
-    response = await fetch(
-      `${url}${
-        withEmail
-          ? `${hasQuery ? "&" : "?"}email=${encodeURIComponent(email)}`
-          : ""
-      }`,
-      {
-        ...options,
-        signal: options.signal || controller.signal,
-        headers: {
-          "Content-Type": "application/json",
-          ...(token
-            ? { Authorization: `Bearer ${token}` }
-            : {}),
-          ...options.headers,
-        },
-      }
-    );
+    response = await fetch(url, {
+      ...options,
+      signal: options.signal || controller.signal,
+      headers: {
+        "Content-Type": "application/json",
+        ...(token
+          ? { Authorization: `Bearer ${token}` }
+          : {}),
+        ...options.headers,
+      },
+    });
   } catch (error) {
     if (
       error instanceof DOMException &&
@@ -243,6 +234,13 @@ export async function api<T>(
         message;
     } catch {}
 
+    if (response.status === 401 || response.status === 403) {
+      clearSession();
+      if (typeof window !== "undefined" && !window.location.pathname.startsWith("/login") && !window.location.pathname.startsWith("/register") && window.location.pathname !== "/") {
+        window.location.href = `/login?expired=true`;
+      }
+    }
+
     throw new Error(message);
   }
 
@@ -261,8 +259,11 @@ export function saveSession(
   email: string,
   token: string | null
 ) {
-  localStorage.setItem("tripnest_email", email);
+  if (typeof window === "undefined") return;
 
+  if (email) {
+    localStorage.setItem("tripnest_email", email);
+  }
   if (token) {
     localStorage.setItem("tripnest_token", token);
   } else {
@@ -271,8 +272,10 @@ export function saveSession(
 }
 
 export function clearSession() {
+  if (typeof window === "undefined") return;
   localStorage.removeItem("tripnest_email");
   localStorage.removeItem("tripnest_token");
+  localStorage.removeItem("user");
 }
 
 /* =========================

@@ -98,8 +98,13 @@ export default function DashboardPage() {
 
   // Load notifications when dashboard opens
   useEffect(() => {
-    loadNotifications();
+    const timer = window.setTimeout(() => {
+      void loadNotifications();
+    }, 0);
+
+    return () => window.clearTimeout(timer);
   }, []);
+
 
   // Refresh notifications every 30 seconds
   useEffect(() => {

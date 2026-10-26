@@ -9,6 +9,8 @@ dist/
 .env.local
 .env.*.local
 .local-logs/
+.m2/
 
 .DS_Store
 Thumbs.db
+

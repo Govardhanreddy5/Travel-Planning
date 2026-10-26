@@ -17,51 +17,56 @@ export default function DestinationDetailsPage() {
   const [weatherError, setWeatherError] = useState("");
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
+    const timer = window.setTimeout(() => {
+      const params = new URLSearchParams(window.location.search);
 
-    const placeName =
-      params.get("name") || "Destination";
+      const placeName =
+        params.get("name") || "Destination";
 
-    const placeAddress =
-      params.get("address") || "";
+      const placeAddress =
+        params.get("address") || "";
 
-    const lat = Number(params.get("lat"));
-    const lon = Number(params.get("lon"));
+      const lat = Number(params.get("lat"));
+      const lon = Number(params.get("lon"));
 
-    setName(placeName);
-    setAddress(placeAddress);
+      setName(placeName);
+      setAddress(placeAddress);
 
-    if (!Number.isFinite(lat) || !Number.isFinite(lon)) {
-      setLoadingWeather(false);
-      setWeatherError(
-        "Destination coordinates are missing or invalid."
-      );
-      return;
-    }
-
-    setLatitude(lat);
-    setLongitude(lon);
-
-    async function loadWeather() {
-      setLoadingWeather(true);
-      setWeatherError("");
-
-      try {
-        const result = await getWeather(lat, lon);
-        setWeather(result);
-      } catch (reason) {
-        setWeatherError(
-          reason instanceof Error
-            ? reason.message
-            : "Weather information could not be loaded."
-        );
-      } finally {
+      if (!Number.isFinite(lat) || !Number.isFinite(lon)) {
         setLoadingWeather(false);
+        setWeatherError(
+          "Destination coordinates are missing or invalid."
+        );
+        return;
       }
-    }
 
-    void loadWeather();
+      setLatitude(lat);
+      setLongitude(lon);
+
+      async function loadWeather() {
+        setLoadingWeather(true);
+        setWeatherError("");
+
+        try {
+          const result = await getWeather(lat, lon);
+          setWeather(result);
+        } catch (reason) {
+          setWeatherError(
+            reason instanceof Error
+              ? reason.message
+              : "Weather information could not be loaded."
+          );
+        } finally {
+          setLoadingWeather(false);
+        }
+      }
+
+      void loadWeather();
+    }, 0);
+
+    return () => window.clearTimeout(timer);
   }, []);
+
 
   const temperature =
     weather?.main?.temp !== undefined

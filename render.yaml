@@ -10,13 +10,13 @@ services:
       - key: SPRING_PROFILES_ACTIVE
         value: prod
       - key: DB_HOST
-        sync: false
+        value: "aws-0-ap-south-1.pooler.supabase.com"
       - key: DB_PORT
         value: "5432"
       - key: DB_NAME
         value: "postgres"
       - key: DB_USER
-        value: "postgres"
+        value: "postgres.fcthobeoyuugxrzruxlc"
       - key: DB_PASSWORD
         sync: false
       - key: DB_SSLMODE

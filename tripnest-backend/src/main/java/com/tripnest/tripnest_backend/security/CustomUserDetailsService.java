@@ -23,10 +23,14 @@ public class CustomUserDetailsService implements UserDetailsService {
                 .orElseThrow(() ->
                     new UsernameNotFoundException("User not found with email: " + email));
  
+        String roleName = (user.getRole() != null && user.getRole().getName() != null)
+                ? user.getRole().getName()
+                : "TRAVELER";
+
         return org.springframework.security.core.userdetails.User.builder()
                 .username(user.getEmail())
                 .password(user.getPasswordHash())
-                .authorities(List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().getName())))
+                .authorities(List.of(new SimpleGrantedAuthority("ROLE_" + roleName)))
                 .build();
     }
 }

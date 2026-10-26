@@ -2,7 +2,10 @@ services:
   - type: web
     name: tripnest-backend
     runtime: docker
+    plan: free
     rootDir: tripnest-backend
+    dockerfilePath: Dockerfile
+    dockerContext: .
     envVars:
       - key: SPRING_PROFILES_ACTIVE
         value: prod

@@ -208,12 +208,14 @@ TripNest uses versioned database migrations located in:
 
 ### Deploy Backend on Render
 1. Connect your repository to [Render](https://render.com).
-2. Use the provided [`render.yaml`](./render.yaml) blueprint or create a Web Service:
-   - **Environment**: Java
+2. Select **New** &rarr; **Blueprint** and select this repository (it automatically configures `tripnest-backend` from [`render.yaml`](./render.yaml)).
+3. Alternatively, create a Web Service manually:
+   - **Environment**: Docker
+   - **Plan**: Free
    - **Root Directory**: `tripnest-backend`
-   - **Build Command**: `./mvnw clean package -DskipTests`
-   - **Start Command**: `java -jar target/tripnest-backend-0.0.1-SNAPSHOT.jar`
-3. Add the environment variables listed in the table above.
+   - **Dockerfile Path**: `Dockerfile`
+4. Populate the environment variables listed in the table above.
+
 
 ### Deploy Frontend on Vercel
 1. Import the repository into [Vercel](https://vercel.com).
